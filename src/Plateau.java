@@ -1,6 +1,6 @@
 public class Plateau {
 
-    private Piece[][] cases = new Piece[8][8];
+    private Piece[][] cases = new Piece[10][10];
     private String joueurActuel = "NOIR";// ou "BLANC"
 
     public Plateau() {

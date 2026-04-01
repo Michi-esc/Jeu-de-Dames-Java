@@ -39,4 +39,8 @@ public class Piece {
             return "○";
         }
     }
+
+    public boolean estDame() {
+        return false;
+    }
 }

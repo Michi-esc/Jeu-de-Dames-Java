@@ -1,6 +1,7 @@
 public class Plateau {
 
-    private Piece[][] cases = new Piece[10][10];
+    private static final int TAILLE = 10;
+    private Piece[][] cases = new Piece[TAILLE][TAILLE];
     private String joueurActuel = "NOIR";// ou "BLANC"
 
     public Plateau() {
@@ -8,24 +9,37 @@ public class Plateau {
     }
 
     public void initialiser() {
-        // Pions NOIRS
-        cases[2][1] = new Piece(1, 2, "NOIR");
-        cases[2][3] = new Piece(3, 2, "NOIR");
-        cases[2][5] = new Piece(5, 2, "NOIR");
-        cases[2][7] = new Piece(7, 2, "NOIR");
+        // Nettoyage du plateau
+        for (int y = 0; y < TAILLE; y++) {
+            for (int x = 0; x < TAILLE; x++) {
+                cases[y][x] = null;
+            }
+        }
 
-        // Pions BLANCS
-        cases[5][0] = new Piece(0, 5, "BLANC");
-        cases[5][2] = new Piece(2, 5, "BLANC");
-        cases[5][4] = new Piece(4, 5, "BLANC");
-        cases[5][6] = new Piece(6, 5, "BLANC");
+        // Pions NOIRS sur les 4 premières lignes (cases foncées)
+        for (int y = 0; y < 4; y++) {
+            for (int x = 0; x < TAILLE; x++) {
+                if ((x + y) % 2 == 1) {
+                    cases[y][x] = new Piece(x, y, "NOIR");
+                }
+            }
+        }
+
+        // Pions BLANCS sur les 4 dernières lignes (cases foncées)
+        for (int y = TAILLE - 4; y < TAILLE; y++) {
+            for (int x = 0; x < TAILLE; x++) {
+                if ((x + y) % 2 == 1) {
+                    cases[y][x] = new Piece(x, y, "BLANC");
+                }
+            }
+        }
     }
 
     public void afficher() {
-        System.out.println("  0 1 2 3 4 5 6 7");
-        for (int y = 0; y < 8; y++) {
+        System.out.println("  0 1 2 3 4 5 6 7 8 9");
+        for (int y = 0; y < TAILLE; y++) {
             System.out.print(y + " ");
-            for (int x = 0; x < 8; x++) {
+            for (int x = 0; x < TAILLE; x++) {
                 if (cases[y][x] == null) {
                     System.out.print(". ");
                 } else {
@@ -37,13 +51,20 @@ public class Plateau {
     }
 
     public Piece getPieceAt(int x, int y) {
+        if (!coordonneesValides(x, y)) {
+            return null;
+        }
         return cases[y][x];
+    }
+
+    public int getTaille() {
+        return TAILLE;
     }
 
     public boolean estDeplacementSimpleValide(int x1, int y1, int x2, int y2) {
 
         //  Vérif coordonnées valides
-        if (x2 < 0 || x2 > 7 || y2 < 0 || y2 > 7) {
+        if (!coordonneesValides(x1, y1) || !coordonneesValides(x2, y2)) {
             return false;
         }
 
@@ -61,6 +82,10 @@ public class Plateau {
         // Vérif case d'arrivée vide
         if (cases[y2][x2] != null) {
             return false;
+        }
+
+        if (p.estDame()) {
+            return deplacementSimpleDameValide(x1, y1, x2, y2);
         }
 
         // Vérif déplacement diagonal d'une case
@@ -84,18 +109,14 @@ public class Plateau {
         // Vérif capture possible
         if (capture(x1, y1, x2, y2)) {
             Piece p = cases[y1][x1];
-
-            int xMilieu = (x1 + x2) / 2;
-            int yMilieu = (y1 + y2) / 2;
-
-            // Suppression du pion mangé
-            cases[yMilieu][xMilieu] = null;
+            supprimerPieceCapturee(x1, y1, x2, y2, p);
 
             // Nouveau déplacement du pion
             cases[y1][x1] = null;
             cases[y2][x2] = p;
             p.setX(x2);
             p.setY(y2);
+            promouvoirSiNecessaire(p);
 
             return true;
         }
@@ -107,6 +128,7 @@ public class Plateau {
             cases[y2][x2] = p;
             p.setX(x2);
             p.setY(y2);
+            promouvoirSiNecessaire(p);
             return true;
         }
 
@@ -129,7 +151,7 @@ public class Plateau {
     public boolean capture(int x1, int y1, int x2, int y2) {
 
         // Vérif coordonnées valides
-        if (x2 < 0 || x2 > 7 || y2 < 0 || y2 > 7) {
+        if (!coordonneesValides(x1, y1) || !coordonneesValides(x2, y2)) {
             return false;
         }
 
@@ -143,17 +165,12 @@ public class Plateau {
             return false;
         }
 
+        if (p.estDame()) {
+            return captureDameValide(x1, y1, x2, y2, p);
+        }
+
         // Vérif déplacement de 2 cases en diagonale possible
         if (Math.abs(x2 - x1) != 2 || Math.abs(y2 - y1) != 2) {
-            return false;
-        }
-
-        // Vérif sens du déplacement
-        if (p.getCouleur().equals("NOIR") && y2 != y1 + 2) {
-            return false;
-        }
-
-        if (p.getCouleur().equals("BLANC") && y2 != y1 - 2) {
             return false;
         }
 
@@ -180,10 +197,106 @@ public class Plateau {
         return true;
     }
 
+    private boolean coordonneesValides(int x, int y) {
+        return x >= 0 && x < TAILLE && y >= 0 && y < TAILLE;
+    }
+
+    private boolean deplacementSimpleDameValide(int x1, int y1, int x2, int y2) {
+        int dx = x2 - x1;
+        int dy = y2 - y1;
+        if (Math.abs(dx) != Math.abs(dy) || dx == 0) {
+            return false;
+        }
+
+        int pasX = dx > 0 ? 1 : -1;
+        int pasY = dy > 0 ? 1 : -1;
+        int x = x1 + pasX;
+        int y = y1 + pasY;
+        while (x != x2 && y != y2) {
+            if (cases[y][x] != null) {
+                return false;
+            }
+            x += pasX;
+            y += pasY;
+        }
+        return true;
+    }
+
+    private boolean captureDameValide(int x1, int y1, int x2, int y2, Piece dame) {
+        int dx = x2 - x1;
+        int dy = y2 - y1;
+        if (Math.abs(dx) != Math.abs(dy) || dx == 0) {
+            return false;
+        }
+
+        if (cases[y2][x2] != null) {
+            return false;
+        }
+
+        int pasX = dx > 0 ? 1 : -1;
+        int pasY = dy > 0 ? 1 : -1;
+        int x = x1 + pasX;
+        int y = y1 + pasY;
+        int nbAdverses = 0;
+
+        while (x != x2 && y != y2) {
+            Piece intermediaire = cases[y][x];
+            if (intermediaire != null) {
+                if (intermediaire.getCouleur().equals(dame.getCouleur())) {
+                    return false;
+                }
+                nbAdverses++;
+                if (nbAdverses > 1) {
+                    return false;
+                }
+            }
+            x += pasX;
+            y += pasY;
+        }
+
+        return nbAdverses == 1;
+    }
+
+    private void supprimerPieceCapturee(int x1, int y1, int x2, int y2, Piece piece) {
+        if (!piece.estDame()) {
+            int xMilieu = (x1 + x2) / 2;
+            int yMilieu = (y1 + y2) / 2;
+            cases[yMilieu][xMilieu] = null;
+            return;
+        }
+
+        int pasX = x2 > x1 ? 1 : -1;
+        int pasY = y2 > y1 ? 1 : -1;
+        int x = x1 + pasX;
+        int y = y1 + pasY;
+
+        while (x != x2 && y != y2) {
+            Piece intermediaire = cases[y][x];
+            if (intermediaire != null && !intermediaire.getCouleur().equals(piece.getCouleur())) {
+                cases[y][x] = null;
+                return;
+            }
+            x += pasX;
+            y += pasY;
+        }
+    }
+
+    private void promouvoirSiNecessaire(Piece piece) {
+        if (piece.estDame()) {
+            return;
+        }
+
+        if (piece.getCouleur().equals("NOIR") && piece.getY() == TAILLE - 1) {
+            cases[piece.getY()][piece.getX()] = new Dame(piece.getX(), piece.getY(), piece.getCouleur());
+        } else if (piece.getCouleur().equals("BLANC") && piece.getY() == 0) {
+            cases[piece.getY()][piece.getX()] = new Dame(piece.getX(), piece.getY(), piece.getCouleur());
+        }
+    }
+
     public int compterPions(String couleur) {
         int count = 0;
-        for (int y = 0; y < 8; y++) {
-            for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < TAILLE; y++) {
+            for (int x = 0; x < TAILLE; x++) {
                 if (cases[y][x] != null && cases[y][x].getCouleur().equals(couleur)) {
                     count++;
                 }
@@ -194,14 +307,14 @@ public class Plateau {
 
     public boolean conditionFinAtteinte() {
 
-        int minYNoir = 8;     // très grand
+        int minYNoir = TAILLE;     // très grand
         int maxYBlanc = -1;  // très petit
 
         boolean noirExiste = false;
         boolean blancExiste = false;
 
-        for (int y = 0; y < 8; y++) {
-            for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < TAILLE; y++) {
+            for (int x = 0; x < TAILLE; x++) {
                 Piece p = cases[y][x];
                 if (p != null) {
                     if (p.getCouleur().equals("NOIR")) {

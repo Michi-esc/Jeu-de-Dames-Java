@@ -1,50 +1,108 @@
-import java.util.Scanner;
-
 public class Jeu {
 
     private Plateau plateau;
-    private Scanner scanner;
+    private Integer selectionX;
+    private Integer selectionY;
+    private String messageEtat;
+    private boolean partieTerminee;
 
     public Jeu() {
         plateau = new Plateau();
-        scanner = new Scanner(System.in);
+        selectionX = null;
+        selectionY = null;
+        messageEtat = "Selectionnez une piece du joueur " + plateau.getJoueurActuel();
+        partieTerminee = false;
     }
 
-    public void jouer() {
-        while (true) {
-            plateau.afficher();
+    public String cliquerCase(int x, int y) {
+        if (partieTerminee) {
+            return messageEtat;
+        }
 
-            System.out.print("Joueur " + plateau.getJoueurActuel()
-                    + " - saisissez x1 y1 x2 y2 (ou -1 pour quitter) : ");
+        Piece pieceCliquee = plateau.getPieceAt(x, y);
 
-            int x1 = scanner.nextInt();
-            if (x1 == -1) {
-                System.out.println("Fin de la partie.");
-                break;
+        if (selectionX == null || selectionY == null) {
+            if (pieceCliquee == null) {
+                messageEtat = "Aucune piece sur cette case.";
+                return messageEtat;
+            }
+            if (!pieceCliquee.getCouleur().equals(plateau.getJoueurActuel())) {
+                messageEtat = "Ce n'est pas une piece du joueur " + plateau.getJoueurActuel() + ".";
+                return messageEtat;
             }
 
-            int y1 = scanner.nextInt();
-            int x2 = scanner.nextInt();
-            int y2 = scanner.nextInt();
-            scanner.nextLine();
+            selectionX = x;
+            selectionY = y;
+            messageEtat = "Piece selectionnee en (" + x + ", " + y + "). Choisissez la destination.";
+            return messageEtat;
+        }
 
-            if (plateau.deplacer(x1, y1, x2, y2)) {
-                System.out.println("Coup valide !");
+        if (selectionX == x && selectionY == y) {
+            selectionX = null;
+            selectionY = null;
+            messageEtat = "Selection annulee.";
+            return messageEtat;
+        }
 
-                // Vérif fin de partie
-                if (plateau.conditionFinAtteinte()) {
-                    plateau.afficher();
-                    System.out.println("Fin de la partie !");
-                    System.out.println(plateau.resultatFinPartie());
-                    break;
-                }
+        if (pieceCliquee != null && pieceCliquee.getCouleur().equals(plateau.getJoueurActuel())) {
+            selectionX = x;
+            selectionY = y;
+            messageEtat = "Piece selectionnee en (" + x + ", " + y + "). Choisissez la destination.";
+            return messageEtat;
+        }
 
-                else {
-                    System.out.println("Coup invalide, réessayez.");
-                }
+        if (plateau.deplacer(selectionX, selectionY, x, y)) {
+            selectionX = null;
+            selectionY = null;
 
-                plateau.changerJoueur();
+            if (plateau.conditionFinAtteinte()) {
+                partieTerminee = true;
+                messageEtat = "Fin de la partie ! " + plateau.resultatFinPartie();
+                return messageEtat;
             }
+
+            plateau.changerJoueur();
+            messageEtat = "Coup valide. Au tour des " + plateau.getJoueurActuel() + ".";
+            return messageEtat;
+        }
+
+        messageEtat = "Coup invalide. Choisissez une autre destination.";
+        return messageEtat;
+    }
+
+    public Plateau getPlateau() {
+        return plateau;
+    }
+
+    public boolean isPartieTerminee() {
+        return partieTerminee;
+    }
+
+    public String getMessageEtat() {
+        return messageEtat;
+    }
+
+    public Integer getSelectionX() {
+        return selectionX;
+    }
+
+    public Integer getSelectionY() {
+        return selectionY;
+    }
+
+    public void reinitialiser() {
+        plateau = new Plateau();
+        selectionX = null;
+        selectionY = null;
+        partieTerminee = false;
+        messageEtat = "Selectionnez une piece du joueur " + plateau.getJoueurActuel();
+    }
+
+    public void afficherConsole() {
+        plateau.afficher();
+        System.out.println(messageEtat);
+        if (selectionX != null && selectionY != null) {
+            System.out.println("Selection: (" + selectionX + ", " + selectionY + ")");
         }
     }
 }

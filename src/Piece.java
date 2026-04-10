@@ -1,12 +1,19 @@
-public class Piece {
+import java.io.Serializable;
+
+public class Piece implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int x;          // colonne
     private int y;          // ligne
     private String couleur; // "NOIR" ou "BLANC"
+    private boolean dame;   // état de promotion
 
     public Piece(int x, int y, String couleur) {
         this.x = x;
         this.y = y;
-        this.couleur = couleur;}
+        this.couleur = couleur;
+        this.dame = false;
+    }
 
     public int getX() {
         return x;
@@ -33,10 +40,19 @@ public class Piece {
     }
 
     public String afficher() {
+        if (dame) return couleur.equals("NOIR") ? "♛" : "♕";
         if (couleur.equals("NOIR")) {
             return "●";
         } else {
             return "○";
         }
+    }
+
+    public boolean estDame() {
+        return dame;
+    }
+
+    public void setDame(boolean dame) {
+        this.dame = dame;
     }
 }

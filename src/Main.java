@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
@@ -1099,3 +1100,11 @@ public class Main extends Application {
         launch(args);
     }
 }
+=======
+public class Main {
+    public static void main(String[] args) {
+        Jeu jeu = new Jeu();
+        jeu.afficherConsole();
+    }
+}
+>>>>>>> 5efb9be3b877d7f96a52895722f1f6d4ad7ac8f6

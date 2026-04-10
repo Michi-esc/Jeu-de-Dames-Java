@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import java.io.Serializable;
-=======
-public class Jeu {
->>>>>>> 5efb9be3b877d7f96a52895722f1f6d4ad7ac8f6
 
 public class Jeu implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -11,12 +7,9 @@ public class Jeu implements Serializable {
     private Integer selectionY;
     private String messageEtat;
     private boolean partieTerminee;
-<<<<<<< HEAD
     private boolean dernierCoupPromotion = false;
     private int comboCaptures = 0;
     private Piece pieceEnCombo = null;
-=======
->>>>>>> 5efb9be3b877d7f96a52895722f1f6d4ad7ac8f6
 
     public Jeu() {
         plateau = new Plateau();
@@ -33,7 +26,6 @@ public class Jeu implements Serializable {
 
         Piece pieceCliquee = plateau.getPieceAt(x, y);
 
-<<<<<<< HEAD
         if (pieceEnCombo != null && (selectionX == null)) {
             selectionX = pieceEnCombo.getX();
             selectionY = pieceEnCombo.getY();
@@ -118,49 +110,6 @@ public class Jeu implements Serializable {
                 return messageEtat;
             }
 
-=======
-        if (selectionX == null || selectionY == null) {
-            if (pieceCliquee == null) {
-                messageEtat = "Aucune piece sur cette case.";
-                return messageEtat;
-            }
-            if (!pieceCliquee.getCouleur().equals(plateau.getJoueurActuel())) {
-                messageEtat = "Ce n'est pas une piece du joueur " + plateau.getJoueurActuel() + ".";
-                return messageEtat;
-            }
-
-            selectionX = x;
-            selectionY = y;
-            messageEtat = "Piece selectionnee en (" + x + ", " + y + "). Choisissez la destination.";
-            return messageEtat;
-        }
-
-        if (selectionX == x && selectionY == y) {
-            selectionX = null;
-            selectionY = null;
-            messageEtat = "Selection annulee.";
-            return messageEtat;
-        }
-
-        if (pieceCliquee != null && pieceCliquee.getCouleur().equals(plateau.getJoueurActuel())) {
-            selectionX = x;
-            selectionY = y;
-            messageEtat = "Piece selectionnee en (" + x + ", " + y + "). Choisissez la destination.";
-            return messageEtat;
-        }
-
-        if (plateau.deplacer(selectionX, selectionY, x, y)) {
-            selectionX = null;
-            selectionY = null;
-
-            if (plateau.conditionFinAtteinte()) {
-                partieTerminee = true;
-                messageEtat = "Fin de la partie ! " + plateau.resultatFinPartie();
-                return messageEtat;
-            }
-
-            plateau.changerJoueur();
->>>>>>> 5efb9be3b877d7f96a52895722f1f6d4ad7ac8f6
             messageEtat = "Coup valide. Au tour des " + plateau.getJoueurActuel() + ".";
             return messageEtat;
         }
@@ -194,11 +143,8 @@ public class Jeu implements Serializable {
         selectionX = null;
         selectionY = null;
         partieTerminee = false;
-<<<<<<< HEAD
         comboCaptures = 0;
         pieceEnCombo = null;
-=======
->>>>>>> 5efb9be3b877d7f96a52895722f1f6d4ad7ac8f6
         messageEtat = "Selectionnez une piece du joueur " + plateau.getJoueurActuel();
     }
 

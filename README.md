@@ -1,5 +1,4 @@
-# 👑 Jeu de Dames 10x10 - [Nom de votre Entreprise Fictive]
-
+# 👑 Jeu de Dames 10x10 
 ## 🏢 Contexte du Projet & Gestion d'équipe
 
 Ce projet de développement d'un jeu de dames en Java a été réalisé dans le cadre d'un cours de programmation orientée objet (POO) à l'université. L'objectif était de créer une application complète respectant les règles classiques du jeu de dames international, tout en offrant une interface graphique moderne et intuitive.
@@ -31,7 +30,7 @@ Le jeu respecte fidèlement les règles classiques du jeu de dames international
 Nous avons fait le choix technique de développer l'interface avec **JavaFX**. Ce choix se justifie pour plusieurs raisons :
 1. **Expérience Utilisateur (UX) fluide** : JavaFX nous a permis d'intégrer des animations (transitions, survol, rotations de plateau) qui rendent le jeu vivant.
 2. **Robustesse et Gestion des erreurs** : L'interface empêche les actions non autorisées. Lors d'une tentative de coup invalide, un retour visuel (tremblement du plateau) et textuel est donné sans faire planter l'application.
-3. **Personnalisation visuelle** : L'utilisation de `Canvas` et des `Nodes` JavaFX a facilité la création de nombreux thèmes et arrière-plans animés programmatiques (`BackgroundAnimator`), tout en supportant nativement l'intégration de modes d'accessibilité.
+3. **Personnalisation visuelle** : L'utilisation de `Panes` et des `Nodes` JavaFX a facilité la création de nombreux thèmes et arrière-plans animés programmatiques (`BackgroundAnimator`), tout en supportant nativement l'intégration de modes d'accessibilité.
 
 ---
 
